@@ -1,0 +1,12 @@
+{
+  "_id": "ipfsHash",
+  "_rev": "reserved",
+  "_attachments": "thumbnail",
+  "owner": "owner ethereum address",
+  "lat": "latitude",
+  "lon": "longitude",
+  "cdate": "creation datetime",
+  "desc": "description",
+  "tags": ["tag1","tag2"],
+  "avail": true
+}

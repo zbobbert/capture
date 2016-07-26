@@ -1,3 +1,5 @@
+var noSqlDb = "capture";
+
 function upload() {
   var ipfs = window.IpfsApi({host: 'localhost', port: '5001', procotol: 'http'});
   var swarmPromise = ipfs.swarm.peers();
@@ -66,7 +68,7 @@ function validateNoSql(noSqlJson) {
 
 function postNoSql(noSqlJson) {
   $.couch.urlPrefix = "http://localhost:5984";
-  $.couch.db("picfish").saveDoc(noSqlJson, {
+  $.couch.db(noSqlDb).saveDoc(noSqlJson, {
     success: function(data) {
       console.log(data);
     },
