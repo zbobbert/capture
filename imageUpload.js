@@ -24,7 +24,7 @@ console.log(thumbnail);
     var noSqlPost = {
       _id: ipfsId,
       _attachments: {
-        thumbnail:
+        "thumbnail.png":
         {
           content_type: "image\/png;base64",
           data: thumbnail.src.split(",")[1]
@@ -71,12 +71,17 @@ function postNoSql(noSqlJson) {
   $.couch.db(noSqlDb).saveDoc(noSqlJson, {
     success: function(data) {
       console.log(data);
+      showSuccess(data);
     },
     error: function(status) {
       console.log(status);
       alert("There was an issue with the NoSQL database.");
     }
   });
+}
+
+function showSuccess(data) {
+  $("body").load("success.html");
 }
 
 function thumb(file) {
