@@ -4,10 +4,13 @@ html, body {
   padding: 0;
 }
 #map {
-  height: 80%;
+  height: 70%;
   margin: 1em;
 }
 #btnCurrentLoc {
   margin-left: 2em;
   margin-top: 2em;
+}
+#itemInfo {
+  margin: 3em;
 }
