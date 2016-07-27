@@ -3,6 +3,10 @@ var noSqlDb = "capture";
 var myLatLng = {lat: 37.76703763908325, lng: -122.399161844198};
 var map;
 
+var arrX;
+var arrY;
+var results = [];
+
 function zoomToMe() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(setCurrentPosition);
@@ -25,19 +29,71 @@ function initMap() {
 }
 
 function search() {
+  $.couch.urlPrefix = "http://localhost:5984";
+
+  searchLat(function() {
+    searchLng(function() {
+      mergeResults(function() {
+        showResults();
+      });
+    })
+  });
+}
+
+function showResults() {
+    results.forEach(function(item, index){
+      console.log("Marker: " + item);
+      var marker = new google.maps.Marker({
+        position: item.coords,
+        map: map,
+        title: item.id
+      });
+    });
+}
+
+function searchLat(callback) {
   $.couch.db(noSqlDb).view("map/lat", {
     success: function(data) {
-      console.log(data);
+      arrX = data.rows;
+      callback();
     },
     error: function(status) {
       console.log(status);
     },
-    reduce: false
+    reduce: false,
+    startkey: map.getBounds().getSouthWest().lat(),
+    endkey: map.getBounds().getNorthEast().lat()
   });
+}
 
-  var marker = new google.maps.Marker({
-    position: myLatLng,
-    map: map,
-    title: 'Hello World!'
+function searchLng(callback) {
+  $.couch.db(noSqlDb).view("map/lng", {
+    success: function(data) {
+      arrY = data.rows;
+      callback();
+    },
+    error: function(status) {
+      console.log(status);
+    },
+    reduce: false,
+    startkey: map.getBounds().getSouthWest().lng(),
+    endkey: map.getBounds().getNorthEast().lng()
   });
+}
+
+function mergeResults(callback) {
+  arrX.forEach(function(xItem, xIndex) {
+    arrY.forEach(function(yItem, yIndex) {
+      if (xItem.id === yItem.id) {
+        if ($.inArray(xItem.id,results)){
+          results.push({id: xItem.id,
+          coords:{
+            lat: xItem.key,
+            lng: yItem.key
+          }});
+        }
+      }
+    });
+  });
+  callback();
 }

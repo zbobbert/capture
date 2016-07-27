@@ -62,7 +62,7 @@ function upload() {
 }
 
 function processCoordArr(coordRef, coordArr) {
-  var coord = coordArr[0] + (((coordArr[1]/60) + (coordArr[2]/3600))/100);
+  var coord = coordArr[0] + (((coordArr[1]/60) + (coordArr[2]/3600)));
   if (coordRef === "N") {
     return coord;
   }
