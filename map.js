@@ -132,7 +132,7 @@ function checkDate(date) {
   var dateBegin = new Date(document.getElementById("datepickerBegin").value);
   var dateEnd = new Date(document.getElementById("datepickerEnd").value);
 
-  console.log(date + " in " + dateBegin + " and " + dateEnd);
+  //console.log(date + " in " + dateBegin + " and " + dateEnd);
 
   if ((date > dateBegin) && (date < dateEnd)) {
     return true;
@@ -142,7 +142,7 @@ function checkDate(date) {
     return true;
   }
   else if ((date > dateBegin) && (dateEnd == "Invalid Date")) {
-    console.log("dateBegin is undefined");
+    console.log("dateEnd is undefined");
     return true;
   }
   else if ((dateBegin == "Invalid Date") && (dateEnd == "Invalid Date")) {
