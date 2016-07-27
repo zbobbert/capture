@@ -2,6 +2,21 @@ var noSqlDb = "capture";
 var thumbx = 200;
 var thumby = 200;
 
+/*
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+
+if (navigator.getUserMedia) {
+  console.log("handling video");
+  navigator.getUserMedia({video: true}, handleVideo, videoError);
+}
+else {
+  console.log("browser does not support video");
+  var parent = document.getElementById("camera");
+  var child = document.getElementById("videoElement");
+  parent.removeChild(child);
+}
+*/
+
 function upload() {
   var fullPic = document.getElementById("fullPic").files[0];
   //Upload full image to IPFS encrypted
@@ -12,7 +27,7 @@ function upload() {
   var tagstr = document.getElementById("tags").value;
   var thumbnail = document.getElementById("thumbnail");
 
-console.log(thumbnail);
+  console.log(thumbnail);
 
   //Scrape EXIF data
   window.EXIF.getData(fullPic, function() {
@@ -29,7 +44,7 @@ console.log(thumbnail);
         }
       },
       owner: ownerAddr,
-      coord: {
+      coords: {
         lat: processCoordArr(exifData.GPSLatitudeRef,exifData.GPSLatitude),
         lng: processCoordArr(exifData.GPSLongitudeRef,exifData.GPSLongitude)
       },
@@ -67,12 +82,12 @@ function processCoordArr(coordRef, coordArr) {
 }
 
 function validateNoSql(noSqlJson) {
-  if (typeof noSqlJson.coord.lat === "undefined") {
+  if (typeof noSqlJson.coords.lat === "undefined") {
     var errorMsg = "Cannot upload this image; Latitude is undefined!";
     alert(errorMsg);
     throw errorMsg;
   }
-  else if (typeof noSqlJson.coord.lng === "undefined") {
+  else if (typeof noSqlJson.coords.lng === "undefined") {
     var errorMsg = "Cannot upload this image; Longitude is undefined!";
     alert(errorMsg);
     throw errorMsg;
@@ -173,4 +188,13 @@ function GenThumbnail(e) {
       alert('unable to get context');
     }
   }
+}
+
+function handleVideo(stream) {
+  var video = document.getElementById("videoElement");
+  video.src = window.URL.createObjectURL(stream);
+}
+
+function videoError(e) {
+  alert("Browser does not support camera capture. Use the file upload instead.");
 }

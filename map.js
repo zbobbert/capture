@@ -1,3 +1,5 @@
+var noSqlDb = "capture";
+
 var myLatLng = {lat: 37.76703763908325, lng: -122.399161844198};
 var map;
 
@@ -23,6 +25,16 @@ function initMap() {
 }
 
 function search() {
+  $.couch.db(noSqlDb).view("map/lat", {
+    success: function(data) {
+      console.log(data);
+    },
+    error: function(status) {
+      console.log(status);
+    },
+    reduce: false
+  });
+
   var marker = new google.maps.Marker({
     position: myLatLng,
     map: map,
