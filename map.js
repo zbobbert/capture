@@ -29,7 +29,7 @@ function initMap() {
   });
 
   map.addListener('center_changed', function() {
-    deleteMarkers();
+    //deleteMarkers();
   });
 
 
@@ -107,39 +107,62 @@ function mergeResults(callback) {
   arrX.forEach(function(xItem, xIndex) {
     arrY.forEach(function(yItem, yIndex) {
       if (xItem.id === yItem.id) {
-        if ($.inArray(xItem.id,results)){
-          results.push({id: xItem.id,
-            coords:{
-              lat: xItem.key,
-              lng: yItem.key
-            }});
+        if (checkDate(xItem.value)) {
+          if ($.inArray(xItem.id,results)){
+            results.push({id: xItem.id,
+              coords:{
+                lat: xItem.key,
+                lng: yItem.key
+              },
+              cdate: xItem.value
+            });
           }
         }
-      });
+      }
     });
-    callback();
-  }
+  });
+  callback();
+}
 
-  //Marker Helper Functions
-  // Sets the map on all markers in the array.
-  function setMapOnAll(map) {
-    for (var i = 0; i < markers.length; i++) {
-      markers[i].setMap(map);
-    }
-  }
+function checkDate(date) {
+  var arrDateTime = date.split(" ");
+  var arrDate = arrDateTime[0].split(":");
+  var date = arrDate[0] + "/" + arrDate[1] + "/" + arrDate[2] + " " + arrDateTime[1];
+  console.log(date);
+  var date = new Date(date);
+  var dateBegin = new Date(document.getElementById("datepickerBegin").value);
+  var dateEnd = new Date(document.getElementById("datepickerEnd").value);
 
-  // Removes the markers from the map, but keeps them in the array.
-  function clearMarkers() {
-    setMapOnAll(null);
-  }
+  console.log(date + " in " + dateBegin + " : " + dateEnd);
 
-  // Shows any markers currently in the array.
-  function showMarkers() {
-    setMapOnAll(map);
+  if ((date > dateBegin) && (date < dateEnd)) {
+    return true;
   }
+  else {
+    return false;
+  }
+}
 
-  // Deletes all markers in the array by removing references to them.
-  function deleteMarkers() {
-    clearMarkers();
-    markers = [];
+//Marker Helper Functions
+// Sets the map on all markers in the array.
+function setMapOnAll(map) {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
   }
+}
+
+// Removes the markers from the map, but keeps them in the array.
+function clearMarkers() {
+  setMapOnAll(null);
+}
+
+// Shows any markers currently in the array.
+function showMarkers() {
+  setMapOnAll(map);
+}
+
+// Deletes all markers in the array by removing references to them.
+function deleteMarkers() {
+  clearMarkers();
+  markers = [];
+}

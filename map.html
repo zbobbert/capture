@@ -4,17 +4,29 @@
   <title>Capture - Map</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link rel="stylesheet" type="text/css" href="map.css">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="lib/jquery-ui-timepicker-addon.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+  <script src="lib/jquery-ui-timepicker-addon.js"></script>
   <script type="text/javascript" src="http://localhost:5984/_utils/script/json2.js"></script>
   <script type="text/javascript" src="http://localhost:5984/_utils/script/sha1.js"></script>
-  <script type="text/javascript" src="http://localhost:5984/_utils/script/jquery.js?1.4.2"></script>
   <script type="text/javascript" src="http://localhost:5984/_utils/script/jquery.couch.js?0.11.0"></script>
   <script type="text/javascript" src="http://localhost:5984/_utils/script/jquery.dialog.js?0.11.0"></script>
   <script type="text/javascript" src="map.js"></script>
+  <script>
+  $( function() {
+    $("#datepickerBegin").datetimepicker();
+    $("#datepickerEnd").datetimepicker();
+  } );
+  </script>
 </head>
 <body>
 
   <button onclick="zoomToMe()" id="btnCurrentLoc">Current Location</button>
-  <button onclick="search()" id="btnSearch">Search Here</button><br>
+  <button onclick="search()" id="btnSearch">Search Here</button>
+  <button onclick="deleteMarkers()" id="btnClear">Clear Results</button>
+  Begin: <input type="text" id="datepickerBegin"> End: <input type="text" id="datepickerEnd"><br>
   <div id="map"></div>
   <div id="itemInfo"></div>
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwy1po70McBqWciTGINNlZehORRM1kDWk&callback=initMap"></script>
