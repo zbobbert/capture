@@ -1,13 +1,11 @@
 var noSqlDb = "capture";
+var thumbx = 200;
+var thumby = 200;
 
 function upload() {
-  var ipfs = window.IpfsApi({host: 'localhost', port: '5001', procotol: 'http'});
-  var swarmPromise = ipfs.swarm.peers();
-  console.log(swarmPromise);
-
   var fullPic = document.getElementById("fullPic").files[0];
   //Upload full image to IPFS encrypted
-  var ipfsId = "QmPmNX2ynvKCFFGNm1hciAnPFm1VvL9yZM2YX11U3UEz65";
+  var ipfsId = uploadIPFS(fullPic);
 
   var ownerAddr = document.getElementById("oAddr").value;
   var description = document.getElementById("desc").value;
@@ -31,8 +29,10 @@ console.log(thumbnail);
         }
       },
       owner: ownerAddr,
-      lat: exifData.GPSLatitude,
-      lon: exifData.GPSLongitude,
+      coord: {
+        lat: processCoordArr(exifData.GPSLatitudeRef,exifData.GPSLatitude),
+        lng: processCoordArr(exifData.GPSLongitudeRef,exifData.GPSLongitude)
+      },
       cdate: exifData.DateTimeOriginal,
       desc: description,
       tags: tagstr.split(","),
@@ -46,13 +46,33 @@ console.log(thumbnail);
   });
 }
 
+function processCoordArr(coordRef, coordArr) {
+  var coord = coordArr[0] + (((coordArr[1]/60) + (coordArr[2]/3600))/100);
+  if (coordRef === "N") {
+    return coord;
+  }
+  else if (coordRef === "S") {
+    return coord*= -1;
+  }
+  else if (coordRef === "E") {
+    return coord;
+  }
+  else if (coordRef === "W") {
+    return coord*= -1;
+  }
+  else {
+    alert("Unknown coordinate: " + coordRef + " " + coordArr);
+    return false;
+  }
+}
+
 function validateNoSql(noSqlJson) {
-  if (typeof noSqlJson.lat === "undefined") {
+  if (typeof noSqlJson.coord.lat === "undefined") {
     var errorMsg = "Cannot upload this image; Latitude is undefined!";
     alert(errorMsg);
     throw errorMsg;
   }
-  else if (typeof noSqlJson.lon === "undefined") {
+  else if (typeof noSqlJson.coord.lng === "undefined") {
     var errorMsg = "Cannot upload this image; Longitude is undefined!";
     alert(errorMsg);
     throw errorMsg;
@@ -64,6 +84,14 @@ function validateNoSql(noSqlJson) {
   }
 
   postNoSql(noSqlJson);
+}
+
+function uploadIPFS(file) {
+  var ipfs = window.IpfsApi({host: 'localhost', port: '5001', procotol: 'http'});
+  var swarmPromise = ipfs.swarm.peers();
+  console.log(swarmPromise);
+
+  return "QmPmNX2ynvKCFFGNm1hciAnPFm1VvL9yZM2YX11U3UEz65";
 }
 
 function postNoSql(noSqlJson) {
@@ -112,9 +140,19 @@ function GenThumbnail(e) {
     myCan.id = "myThumbCanvas";
 
     //Figure out actual dimensions without smushing the image.
+    if (img.height > img.width) {
+      myCan.height = Number(thumby);
+      myCan.width = Number(img.width/(img.height/thumby));
+    }
+    else if (img.width > img.height) {
+      myCan.width = Number(thumbx);
+      myCan.height = Number(img.height/(img.width/thumbx));
+    }
+    else {
+      myCan.width = Number(thumbx);
+      myCan.height = Number(thumby);
+    }
 
-    myCan.width = Number(100);
-    myCan.height = Number(100);
     if (myCan.getContext) {
       var cntxt = myCan.getContext("2d");
       cntxt.drawImage(img, 0, 0, myCan.width, myCan.height);

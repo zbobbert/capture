@@ -3,8 +3,10 @@
   "_rev": "reserved",
   "_attachments": "thumbnail",
   "owner": "owner ethereum address",
-  "lat": "latitude",
-  "lon": "longitude",
+  "coord":{
+    "lat": "latitude",
+    "lng": "longitude"
+  },
   "cdate": "creation datetime",
   "desc": "description",
   "tags": ["tag1","tag2"],

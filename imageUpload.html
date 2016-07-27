@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Capture</title>
+  <title>Capture - Upload</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <script type="text/javascript" src="http://localhost:5984/_utils/script/json2.js"></script>
   <script type="text/javascript" src="http://localhost:5984/_utils/script/sha1.js"></script>
@@ -14,10 +14,11 @@
 </head>
 <body>
 
-  <label>Choose media file to upload and proide details:</label>
+  <label>Choose media file to upload:</label>
   <input type="file" id="fullPic" name="fullPic" onchange="thumb(this.files[0])"><br>
-  <label>Owner's Ethereum Address: </label><input type="text" id="oAddr" name="ownerAddress" value="0x351d10b5c535cad9338635dfc27f87c73d33982e"><br>
-  <label>Description: </label><input type="text" id="desc" name="description" value="A beautiful photo of a whiteboard"><br>
+  <label>Owner's Ethereum Address: </label><input type="text" id="oAddr" name="ownerAddress" size="42" value="0x351d10b5c535cad9338635dfc27f87c73d33982e"><br>
+  <label>Description: </label><br>
+  <textarea id="desc" name="description" rows="2" cols="42">A beautiful photo of a whiteboard.</textarea><br>
   <label>Comma seperated tags</label><input type="text" id="tags" name="tags" value="ideo,cca,nofilter"><br>
   <button onclick="upload()">Upload</button><br>
 

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Capture - Map</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" type="text/css" href="map.css">
+  <script type="text/javascript" src="map.js"></script>
+</head>
+<body>
+
+  <button onclick="zoomToMe()" id="btnCurrentLoc">Current Location</button>
+  <button onclick="search()" id="btnSearch">Search Here</button><br>
+  <div id="map"></div>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwy1po70McBqWciTGINNlZehORRM1kDWk&callback=initMap"></script>
+
+</body>
+</html>
