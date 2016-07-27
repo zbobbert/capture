@@ -128,14 +128,25 @@ function checkDate(date) {
   var arrDateTime = date.split(" ");
   var arrDate = arrDateTime[0].split(":");
   var date = arrDate[0] + "/" + arrDate[1] + "/" + arrDate[2] + " " + arrDateTime[1];
-  console.log(date);
   var date = new Date(date);
   var dateBegin = new Date(document.getElementById("datepickerBegin").value);
   var dateEnd = new Date(document.getElementById("datepickerEnd").value);
 
-  console.log(date + " in " + dateBegin + " : " + dateEnd);
+  console.log(date + " in " + dateBegin + " and " + dateEnd);
 
   if ((date > dateBegin) && (date < dateEnd)) {
+    return true;
+  }
+  else if ((dateBegin === "Invalid Date") && (date < dateEnd)) {
+    console.log("dateBegin is undefined");
+    return true;
+  }
+  else if ((date > dateBegin) && (dateEnd == "Invalid Date")) {
+    console.log("dateBegin is undefined");
+    return true;
+  }
+  else if ((dateBegin == "Invalid Date") && (dateEnd == "Invalid Date")) {
+    console.log("dateBegin and dateEnd are undefined");
     return true;
   }
   else {
