@@ -3,13 +3,16 @@
 <head>
   <title>Capture - Upload</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <script type="text/javascript" src="http://localhost:5984/_utils/script/json2.js"></script>
-  <script type="text/javascript" src="http://localhost:5984/_utils/script/sha1.js"></script>
-  <script type="text/javascript" src="http://localhost:5984/_utils/script/jquery.js?1.4.2"></script>
-  <script type="text/javascript" src="http://localhost:5984/_utils/script/jquery.couch.js?0.11.0"></script>
-  <script type="text/javascript" src="http://localhost:5984/_utils/script/jquery.dialog.js?0.11.0"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="text/javascript" src="http://192.168.1.115:5984/_utils/script/json2.js"></script>
+  <script type="text/javascript" src="http://192.168.1.115:5984/_utils/script/sha1.js"></script>
+  <script type="text/javascript" src="http://192.168.1.115:5984/_utils/script/jquery.js?1.4.2"></script>
+  <script type="text/javascript" src="http://192.168.1.115:5984/_utils/script/jquery.couch.js?0.11.0"></script>
+  <script type="text/javascript" src="http://192.168.1.115:5984/_utils/script/jquery.dialog.js?0.11.0"></script>
   <script type="text/javascript" src="https://npmcdn.com/ipfs-api/dist/index.js"></script>
   <script type="text/javascript" src="https://npmcdn.com/exif-js@2.1.1"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/core.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/md5.js"></script>
   <script type="text/javascript" src="imageUpload.js"></script>
 </head>
 <body>
@@ -26,6 +29,7 @@
   <textarea id="desc" name="description" rows="2" cols="42">A beautiful photo of a whiteboard.</textarea><br>
   <label>Comma seperated tags</label><input type="text" id="tags" name="tags" value="ideo,cca,nofilter"><br>
   <button onclick="upload()">Upload</button><br>
+  <div id="thumbDiv"></div>
 
 </body>
 </html>

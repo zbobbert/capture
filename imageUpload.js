@@ -1,33 +1,31 @@
+var host = "192.168.1.115";
 var noSqlDb = "capture";
 var thumbx = 200;
 var thumby = 200;
+var fullPic;
+var ipfsId;
 
 /*
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
 
 if (navigator.getUserMedia) {
-  console.log("handling video");
-  navigator.getUserMedia({video: true}, handleVideo, videoError);
+console.log("handling video");
+navigator.getUserMedia({video: true}, handleVideo, videoError);
 }
 else {
-  console.log("browser does not support video");
-  var parent = document.getElementById("camera");
-  var child = document.getElementById("videoElement");
-  parent.removeChild(child);
+console.log("browser does not support video");
+var parent = document.getElementById("camera");
+var child = document.getElementById("videoElement");
+parent.removeChild(child);
 }
 */
 
 function upload() {
-  var fullPic = document.getElementById("fullPic").files[0];
-  //Upload full image to IPFS encrypted
-  var ipfsId = uploadIPFS(fullPic);
-
+  fullPic = document.getElementById("fullPic").files[0];
   var ownerAddr = document.getElementById("oAddr").value;
   var description = document.getElementById("desc").value;
   var tagstr = document.getElementById("tags").value;
   var thumbnail = document.getElementById("thumbnail");
-
-  console.log(thumbnail);
 
   //Scrape EXIF data
   window.EXIF.getData(fullPic, function() {
@@ -62,22 +60,28 @@ function upload() {
 }
 
 function processCoordArr(coordRef, coordArr) {
-  var coord = coordArr[0] + (((coordArr[1]/60) + (coordArr[2]/3600)));
-  if (coordRef === "N") {
-    return coord;
-  }
-  else if (coordRef === "S") {
-    return coord*= -1;
-  }
-  else if (coordRef === "E") {
-    return coord;
-  }
-  else if (coordRef === "W") {
-    return coord*= -1;
+  if (coordArr == undefined) {
+    alert("Image coordinates are undefined.");
+    throw new Error("Image coordinates are undefined.");
   }
   else {
-    alert("Unknown coordinate: " + coordRef + " " + coordArr);
-    return false;
+    var coord = coordArr[0] + (((coordArr[1]/60) + (coordArr[2]/3600)));
+    if (coordRef === "N") {
+      return coord;
+    }
+    else if (coordRef === "S") {
+      return coord*= -1;
+    }
+    else if (coordRef === "E") {
+      return coord;
+    }
+    else if (coordRef === "W") {
+      return coord*= -1;
+    }
+    else {
+      alert("Unknown coordinate: " + coordRef + " " + coordArr);
+      return false;
+    }
   }
 }
 
@@ -98,23 +102,67 @@ function validateNoSql(noSqlJson) {
     throw errorMsg;
   }
 
-  postNoSql(noSqlJson);
+  uploadIPFS(fullPic, function() {
+    noSqlJson._id = ipfsId;
+    postNoSql(noSqlJson, noSqlDb, showSuccess);
+  });
 }
 
-function uploadIPFS(file) {
+function uploadIPFS(file, callback) {
+  /*
   var ipfs = window.IpfsApi({host: 'localhost', port: '5001', procotol: 'http'});
-  var swarmPromise = ipfs.swarm.peers();
-  console.log(swarmPromise);
+  //var swarmPromise = ipfs.swarm.peers();
+  //console.log(swarmPromise);
 
-  return "QmPmNX2ynvKCFFGNm1hciAnPFm1VvL9yZM2YX11U3UEz65";
+  var reader = new FileReader();
+
+  reader.readAsDataURL(file);
+  var addPromise = ipfs.add(reader);
+  console.log(addPromise);
+
+  return ipfsId;
+  */
+  /*
+  var data = "QmPmNX2ynvKCFFGNm1hciAnPFm1VvL9yZM2YX11U3UEz65";
+  $.post("http://" + host + ":5001/api/v0/add", file, function(response) {
+  data = response;
+  console.log(data);
+  }).error(function(){
+  alert("Sorry could not upload file to IPFS.");
+  });
+  */
+  var reader = new FileReader();
+
+  if (reader != null) {
+    reader.onload = function() {
+      var md5 = CryptoJS.MD5(reader.result);
+      var ipfsFakeId = "" + md5.words[0] + md5.words[1] + md5.words[2] + md5.words[3]
+      var ipfsPost = {
+        _id: ipfsFakeId,
+        _attachments: {
+          "image":
+          {
+            content_type: file.type,
+            data: reader.result.split(",")[1]
+          }
+        }
+      }
+
+      postNoSql(ipfsPost, "ipfs", function() {
+        ipfsId = ipfsFakeId;
+        callback();
+      });
+    };
+    reader.readAsDataURL(file);
+  }
 }
 
-function postNoSql(noSqlJson) {
-  $.couch.urlPrefix = "http://localhost:5984";
-  $.couch.db(noSqlDb).saveDoc(noSqlJson, {
+function postNoSql(noSqlJson, db, callback) {
+  $.couch.urlPrefix = "http://" + host + ":5984";
+  $.couch.db(db).saveDoc(noSqlJson, {
     success: function(data) {
       console.log(data);
-      showSuccess(data);
+      callback(data);
     },
     error: function(status) {
       console.log(status);
@@ -177,12 +225,14 @@ function GenThumbnail(e) {
         var tnImg = document.createElement('img');
         tnImg.src = dataURL;
         tnImg.id = "thumbnail";
-        document.body.appendChild(document.createElement("br"));
+        thumbDiv = document.getElementById("thumbDiv");
+        thumbDiv.innerHTML = '';
+        thumbDiv.appendChild(document.createElement("br"));
         label = document.createElement("label")
         label.appendChild(document.createTextNode("Thumbnail Preview:"));
-        document.body.appendChild(label);
-        document.body.appendChild(document.createElement("br"));
-        document.body.appendChild(tnImg);
+        thumbDiv.appendChild(label);
+        thumbDiv.appendChild(document.createElement("br"));
+        thumbDiv.appendChild(tnImg);
       }
       else
       alert('unable to get context');

@@ -1,4 +1,6 @@
+var host = "192.168.1.115";
 var noSqlDb = "capture";
+$.couch.urlPrefix = "http://" + host + ":5984";
 
 var myLatLng = {lat: 37.76703763908325, lng: -122.399161844198};
 var map;
@@ -37,7 +39,6 @@ function initMap() {
 
 function search() {
   results = [];
-  $.couch.urlPrefix = "http://localhost:5984";
 
   searchLat(function() {
     searchLng(function() {
@@ -65,11 +66,50 @@ function showResults() {
   });
 }
 
+function buyImage(e) {
+  console.log(e);
+  e.target.disabled = true;
+  e.target.innerHTML = "Bought";
+  $.couch.db(noSqlDb).openDoc(e.target.id, {
+    success: function(data) {
+      console.log(data);
+      if (data.numPurchases == undefined) {
+        data.numPurchases = 1;
+      }
+      else {
+        data.numPurchases += 1;
+      }
+      $.couch.db(noSqlDb).saveDoc(data, {
+        success: function(data) {
+          console.log(data);
+        },
+        error: function(status) {
+          console.log(status);
+          alert("There was an issue with the NoSQL database.");
+        }
+      });
+    },
+    error: function(status) {
+      console.log(status);
+    }
+  });
+}
+
 function showInfo(item) {
   var infoDiv = document.getElementById("itemInfo");
-  infoDiv.innerHTML = item.id + "<br>";
+  var imageButton = document.createElement("button");
+  imageButton.onlick = "window.location('http://" + host + ":5984/ipfs/" + item.id + "/image')";
+  imageButton.innerHTML = item.id;
+  infoDiv.appendChild(imageButton);
+  //infoDiv.innerHTML = "<a href='http://" + host + ":5984/ipfs/" + item.id + "/image'>" + item.id + "</a>";
+  var buyButton = document.createElement("button");
+  buyButton.id = item.id;
+  buyButton.onclick = buyImage;
+  buyButton.innerHTML = "Buy this image";
+  infoDiv.appendChild(buyButton);
+  infoDiv.appendChild(document.createElement("br"));
   var thumbnail = document.createElement("img");
-  thumbnail.src = "http://127.0.0.1:5984/capture/" + item.id + "/thumbnail.png";
+  thumbnail.src = "http://" + host + ":5984/capture/" + item.id + "/thumbnail.png";
   infoDiv.appendChild(thumbnail);
 }
 
