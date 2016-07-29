@@ -20,48 +20,100 @@ parent.removeChild(child);
 }
 */
 
+$(window).load(function(){
+  $('#cover').fadeOut(500);
+});
+
 function upload() {
+  //Show loading spinner
+  $('#cover').fadeIn(1000);
+
   fullPic = document.getElementById("fullPic").files[0];
-  var ownerAddr = document.getElementById("oAddr").value;
-  var description = document.getElementById("desc").value;
-  var tagstr = document.getElementById("tags").value;
-  var thumbnail = document.getElementById("thumbnail");
 
   //Scrape EXIF data
   window.EXIF.getData(fullPic, function() {
     exifData = EXIF.getAllTags(this);
 
-    //Upload NoSQL copy of data
-    var noSqlPost = {
-      _id: ipfsId,
-      _attachments: {
-        "thumbnail.png":
-        {
-          content_type: "image\/png;base64",
-          data: thumbnail.src.split(",")[1]
-        }
-      },
-      owner: ownerAddr,
-      coords: {
-        lat: processCoordArr(exifData.GPSLatitudeRef,exifData.GPSLatitude),
-        lng: processCoordArr(exifData.GPSLongitudeRef,exifData.GPSLongitude)
-      },
-      cdate: exifData.DateTimeOriginal,
-      desc: description,
-      tags: tagstr.split(","),
-      avail: true
+    var lat;
+    var lng;
+    /*
+    if (exifData.GPSLatitude == undefined) {
+    gpsFallback = {lat: position.coords.latitude, lng: position.coords.longitude};
+  }
+  */
+  try {
+    lat = processCoordArr(exifData.GPSLatitudeRef,exifData.GPSLatitude);
+    lng = processCoordArr(exifData.GPSLongitudeRef,exifData.GPSLongitude);
+    continueUpload(lat,lng,exifData);
+  } catch (err) {
+
+    //totally spoof the shit out of this!
+    alert("Unable to get location - Entering debug");
+    lat = prompt("Latitude", "37.76703763908325");
+    lng = prompt("Longitude", "-122.399161844198");
+    var now = new Date();
+    //Date format: 2016:07:28 13:05:17
+    exifData.DateTimeOriginal = prompt("Creation Date", "" + now.getFullYear() + ":" + (now.getMonth() + 1) + ":" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds());
+
+    if ((lat !== null) && (lng !== null) && (exifData.DateTimeOriginal !== null)) {
+      continueUpload(lat,lng,exifData);
+    }
+    else {
+      alert("Invalid data provided, cancelling...");
     }
 
-    console.log(exifData);
-    console.log(noSqlPost);
-
-    validateNoSql(noSqlPost);
+    /*
+    alert("Using alternate method...");
+    navigator.geolocation.getCurrentPosition(function() {
+    alert("trying to get position...");
+    try {
+    lat = position.coords.latitude;
+    lng = position.coords.longitude;
+    } catch (err) {
+    }
+    alert(lat + " : " + lng);
+    });
+    */
+    }
   });
+}
+
+function continueUpload(lat,lng,exifData){
+  var ownerAddr = document.getElementById("oAddr").value;
+  var description = document.getElementById("desc").value;
+  var tagstr = document.getElementById("tags").value;
+  var thumbnail = document.getElementById("thumbnail");
+
+  //Upload NoSQL copy of data
+  var noSqlPost = {
+    _id: ipfsId,
+    _attachments: {
+      "thumbnail.png":
+      {
+        content_type: "image\/png;base64",
+        data: thumbnail.src.split(",")[1]
+      }
+    },
+    owner: ownerAddr,
+    coords: {
+      lat: lat,
+      lng: lng
+    },
+    cdate: exifData.DateTimeOriginal,
+    desc: description,
+    tags: tagstr.split(","),
+    avail: true
+  }
+
+  console.log(exifData);
+  console.log(noSqlPost);
+
+  validateNoSql(noSqlPost);
 }
 
 function processCoordArr(coordRef, coordArr) {
   if (coordArr == undefined) {
-    alert("Image coordinates are undefined.");
+    //alert("Image coordinates are undefined.");
     throw new Error("Image coordinates are undefined.");
   }
   else {
@@ -166,7 +218,12 @@ function postNoSql(noSqlJson, db, callback) {
     },
     error: function(status) {
       console.log(status);
-      alert("There was an issue with the NoSQL database.");
+      if (status === 409) {
+        alert("This image has already been uploaded.");
+      }
+      else {
+        alert("There was an issue with the NoSQL database.");
+      }
     }
   });
 }

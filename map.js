@@ -10,6 +10,8 @@ var arrY;
 var results;
 var markers = [];
 
+var imageButton;
+
 function zoomToMe() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(setCurrentPosition);
@@ -70,7 +72,8 @@ function buyImage(e) {
   console.log(e);
   e.target.disabled = true;
   e.target.innerHTML = "Bought";
-  $.couch.db(noSqlDb).openDoc(e.target.id, {
+  imageButton.disabled = false;
+  $.couch.db(noSqlDb).openDoc(e.target.id.split(",")[1], {
     success: function(data) {
       console.log(data);
       if (data.numPurchases == undefined) {
@@ -95,15 +98,22 @@ function buyImage(e) {
   });
 }
 
+function viewImage(e) {
+  console.log("Opening: " + "http://" + host + ":5984/ipfs/" + e.target.id.split(",")[1] + "/image");
+  window.open("http://" + host + ":5984/ipfs/" + e.target.id.split(",")[1] + "/image");
+}
+
 function showInfo(item) {
   var infoDiv = document.getElementById("itemInfo");
-  var imageButton = document.createElement("button");
-  imageButton.onlick = "window.location('http://" + host + ":5984/ipfs/" + item.id + "/image')";
+  infoDiv.innerHTML = '';
+  imageButton = document.createElement("button");
+  imageButton.id = "img," + item.id;
+  imageButton.onclick = viewImage;
   imageButton.innerHTML = item.id;
+  imageButton.disabled = true;
   infoDiv.appendChild(imageButton);
-  //infoDiv.innerHTML = "<a href='http://" + host + ":5984/ipfs/" + item.id + "/image'>" + item.id + "</a>";
   var buyButton = document.createElement("button");
-  buyButton.id = item.id;
+  buyButton.id = "btn," + item.id;
   buyButton.onclick = buyImage;
   buyButton.innerHTML = "Buy this image";
   infoDiv.appendChild(buyButton);
